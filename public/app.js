@@ -11,6 +11,7 @@ const store = {
 };
 let catalog = null;
 let audio = null;       // aktiv <audio>, ryddes ved navigasjon
+let cleanup = null;     // lagrer og rydder opp for aktiv bok
 let wantPlay = false;   // true når brukeren nettopp valgte en bok -> start avspilling
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -62,6 +63,7 @@ async function start() {
 }
 
 function teardown() {
+  if (cleanup) { cleanup(); cleanup = null; }
   if (audio) { audio.pause(); audio.removeAttribute("src"); audio.load(); audio = null; }
 }
 function route() {
@@ -125,7 +127,13 @@ function renderBook(book) {
   const el = { play: $("play"), scrub: $("scrub"), tCur: $("tCur"), tDur: $("tDur"), chNow: $("chNow"), list: $("chapters") };
   let seeking = false, lastSave = 0;
 
-  const save = () => store.set(POS_KEY + book.id, { i: cur, t: a.currentTime || 0, d: a.duration || 0 });
+  let dead = false;
+  // Lagrer bare når posisjonen er ekte (metadata lastet) og boka fortsatt er aktiv.
+  const save = () => {
+    if (dead || !isFinite(a.duration) || !a.duration) return;
+    store.set(POS_KEY + book.id, { i: cur, t: a.currentTime || 0, d: a.duration });
+  };
+  const onHide = () => { if (document.visibilityState === "hidden") save(); };
 
   function paintChapters() {
     el.chNow.textContent = multi ? book.files[cur].title : "";
@@ -139,7 +147,7 @@ function renderBook(book) {
     el.scrub.value = 0; el.scrub.max = 0; el.tCur.textContent = fmt(t); el.tDur.textContent = "0:00";
     if (t) a.addEventListener("loadedmetadata", () => { a.currentTime = t; }, { once: true });
     paintChapters();
-    save();
+    store.set(POS_KEY + book.id, { i, t, d: 0 });   // husk kapittel + ønsket posisjon med én gang
     if (autoplay) a.play().catch(() => {});
     if ("mediaSession" in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({ title: multi ? book.files[i].title : book.title, artist: book.author, album: book.title });
@@ -181,6 +189,13 @@ function renderBook(book) {
     }).catch(() => {});
   });
   window.addEventListener("pagehide", save);
+  document.addEventListener("visibilitychange", onHide);
+  cleanup = () => {
+    save();
+    dead = true;
+    window.removeEventListener("pagehide", save);
+    document.removeEventListener("visibilitychange", onHide);
+  };
 
   if ("mediaSession" in navigator) {
     const ms = navigator.mediaSession;
