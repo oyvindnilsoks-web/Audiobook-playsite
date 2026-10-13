@@ -75,6 +75,27 @@ wrangler deploy
 ### 8. Test og del
 Åpne adressen, logg inn, spill av, spol, lukk fanen og åpne igjen (skal fortsette der du slapp). Send adressen og passordet til brukerne.
 
+## Laste opp mange/store filer (anbefalt)
+`wrangler r2 object put` tåler maks ca. 300 MB per fil. For store filer bruker du `tools/build_books.py` + `rclone`. Skriptet leser mappene, laster opp alt og lager `public/books.json`. Rediger listen `BOOKS` øverst i skriptet for å legge til bøker.
+
+1. Installer rclone: `sudo apt install rclone` (eller `curl https://rclone.org/install.sh | sudo bash`).
+2. Cloudflare-dashboard → **R2 object storage → Manage API tokens → Create API token**. Tillatelse: *Object Read & Write*, kun bøtta `lydbok`. Kopier *Access Key ID* og *Secret Access Key*. Konto-ID står i adressen i dashboardet (og under R2-oversikten).
+3. Sett variablene (gjelder bare i denne terminalen):
+```bash
+export R2_ACCOUNT_ID=...
+export R2_ACCESS_KEY_ID=...
+export R2_SECRET_ACCESS_KEY=...
+```
+4. Tørrkjør (viser planen og skriver `books.json`, laster ikke opp):
+```bash
+python3 tools/build_books.py --root ~/Dokumenter
+```
+5. Last opp (kan avbrytes og kjøres på nytt, ferdige filer hoppes over):
+```bash
+python3 tools/build_books.py --root ~/Dokumenter --upload
+```
+6. Publiser: `wrangler deploy`
+
 ## Senere
 - **Ny bok:** last opp filene (steg 6), legg dem i `books.json`, kjør `wrangler deploy`.
 - **Nytt passord:** `wrangler secret put PASSWORD`. Bytter du også `TOKEN_SECRET`, må alle logge inn på nytt.

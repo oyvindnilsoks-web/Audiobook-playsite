@@ -41,7 +41,8 @@ export default {
       obj.writeHttpMetadata(headers);
       headers.set("accept-ranges", "bytes");
       headers.set("cache-control", "private, max-age=3600");
-      if (!headers.get("content-type")) headers.set("content-type", "audio/mpeg");
+      if (!headers.get("content-type") || headers.get("content-type") === "application/octet-stream")
+        headers.set("content-type", /\.(m4b|m4a)$/i.test(key) ? "audio/mp4" : "audio/mpeg");
       if (obj.range && rangeHeader) {
         const { offset = 0, length = obj.size - offset } = obj.range;
         headers.set("content-range", `bytes ${offset}-${offset + length - 1}/${obj.size}`);
