@@ -1,0 +1,12 @@
+name = "lydbok"
+main = "src/worker.js"
+compatibility_date = "2025-01-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[r2_buckets]]
+binding = "AUDIO"
+bucket_name = "lydbok"

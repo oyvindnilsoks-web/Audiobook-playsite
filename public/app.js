@@ -1,7 +1,4 @@
-// SHA-256 av passordet (selve passordet står ikke i koden).
-// Lag nytt: printf 'passord' | sha256sum
-const PASSWORD_HASH = "5cacc27b6dff50f0191f37f86f90139c36cbae42b893ee1430cb267272f2d406";
-const AUTH_KEY = "lydbok:auth";
+const AUTH_KEY = "lydbok:token";
 const POS_KEY = "lydbok:pos:";   // + bok-id -> {i, t, d, ts}
 const LAST_KEY = "lydbok:last";
 
@@ -12,11 +9,6 @@ const store = {
 };
 let catalog = null;
 
-async function sha256(s) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
@@ -26,22 +18,22 @@ function fmt(sec) {
   return (h ? h + ":" + String(m).padStart(2, "0") : m) + ":" + String(s).padStart(2, "0");
 }
 function srcUrl(book, f) {
-  return /^https?:\/\//.test(f.src) ? f.src : catalog.baseUrl.replace(/\/?$/, "/") + f.src.replace(/^\//, "");
+  return "/api/audio/" + f.src.split("/").map(encodeURIComponent).join("/") + "?t=" + encodeURIComponent(store.get(AUTH_KEY));
 }
 
 async function init() {
-  if (store.get(AUTH_KEY) === PASSWORD_HASH) return start();
+  if (store.get(AUTH_KEY)) return start();
   $("login").classList.remove("hidden");
 }
 $("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const h = await sha256($("pw").value);
-  if (h === PASSWORD_HASH) {
-    store.set(AUTH_KEY, h);
+  const r = await fetch("/api/login", { method: "POST", body: JSON.stringify({ password: $("pw").value }) }).catch(() => null);
+  if (r && r.ok) {
+    store.set(AUTH_KEY, (await r.json()).token);
     $("login").classList.add("hidden");
     start();
   } else {
-    $("err").textContent = "Feil passord";
+    $("err").textContent = r ? "Feil passord" : "Ingen kontakt med serveren";
   }
 });
 
@@ -125,6 +117,7 @@ function renderBook(book) {
   $("back").onclick = () => (a.currentTime = Math.max(0, a.currentTime - 15));
   $("fwd").onclick = () => (a.currentTime += 30);
   $("speed").onchange = (e) => (a.playbackRate = +e.target.value);
+  a.addEventListener("error", () => fetch(a.src, { headers: { range: "bytes=0-0" } }).then((r) => { if (r.status === 401) { localStorage.removeItem(AUTH_KEY); location.reload(); } }).catch(() => {}));
   a.addEventListener("ended", () => { if (cur + 1 < book.files.length) load(cur + 1, 0, true); });
   let last = 0;
   a.addEventListener("timeupdate", () => { if (Date.now() - last > 3000) { last = Date.now(); save(); } });
