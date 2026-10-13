@@ -3,32 +3,66 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111317">
 <title>Lydbøker</title>
 <style>
-  :root { --bg:#14161a; --card:#1e2126; --fg:#eceff4; --muted:#9aa3b2; --accent:#6aa9ff; }
-  @media (prefers-color-scheme: light) {
-    :root { --bg:#f4f5f7; --card:#fff; --fg:#1b1f24; --muted:#5b6573; --accent:#1a63d6; }
+  :root {
+    --bg:#f6f6f4; --surface:#fff; --line:#e4e4e0; --fg:#18181b; --muted:#76767e; --accent:#2b59c3; --accent-fg:#fff;
   }
-  * { box-sizing: border-box; }
-  body { margin:0; font:16px/1.4 system-ui,sans-serif; background:var(--bg); color:var(--fg); }
-  main { max-width:640px; margin:0 auto; padding:16px; }
-  h1 { font-size:1.5rem; margin:8px 0 16px; }
-  .card { background:var(--card); border-radius:12px; padding:14px 16px; margin:10px 0; display:block; color:inherit; text-decoration:none; }
-  .card small, .muted { color:var(--muted); }
-  a { color:var(--accent); }
-  button, input { font:inherit; }
-  button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 16px; cursor:pointer; }
-  button.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
-  input[type=password] { width:100%; padding:10px; border-radius:8px; border:1px solid var(--muted); background:var(--card); color:var(--fg); margin:8px 0; }
-  .err { color:#e5484d; min-height:1.4em; }
-  .bar { height:4px; background:var(--muted); border-radius:2px; margin-top:8px; opacity:.5; }
-  .bar i { display:block; height:100%; background:var(--accent); border-radius:2px; }
-  ol.chapters { list-style:none; padding:0; margin:12px 0; }
-  ol.chapters li { padding:10px 12px; border-radius:8px; cursor:pointer; display:flex; justify-content:space-between; gap:8px; }
-  ol.chapters li.active { background:var(--card); border-left:3px solid var(--accent); }
-  audio { width:100%; margin:12px 0; }
-  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .hidden { display:none; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#111317; --surface:#1a1d23; --line:#2a2e36; --fg:#ececf0; --muted:#8b8f9a; --accent:#7ba2ff; --accent-fg:#0d1020; }
+  }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { color-scheme: light dark; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:640px; margin:0 auto; padding:24px 16px 64px; }
+  h1 { font-size:1.6rem; font-weight:650; letter-spacing:-.01em; margin:8px 0 20px; }
+  a { color:inherit; text-decoration:none; }
+  button { font:inherit; color:inherit; background:none; border:0; cursor:pointer; padding:0; }
+  .muted { color:var(--muted); }
+  .hidden { display:none !important; }
+
+  /* innlogging */
+  #login { max-width:320px; margin:18vh auto 0; }
+  #login input { width:100%; font:inherit; padding:12px 14px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--fg); margin:12px 0 8px; }
+  #login input:focus { outline:2px solid var(--accent); outline-offset:-1px; }
+  .btn { display:block; width:100%; padding:12px; border-radius:10px; background:var(--accent); color:var(--accent-fg); font-weight:600; text-align:center; }
+  .err { color:#d64545; min-height:1.4em; font-size:.9rem; }
+
+  /* bokliste */
+  .books { display:grid; gap:10px; }
+  .book { display:flex; gap:14px; align-items:center; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
+  .book:hover { border-color:var(--accent); }
+  .tile { flex:none; width:52px; height:52px; border-radius:10px; display:grid; place-items:center; font-weight:700; font-size:1.2rem; color:#fff; }
+  .book .t { font-weight:600; line-height:1.25; }
+  .book .s { font-size:.88rem; color:var(--muted); }
+  .book .txt { min-width:0; flex:1; }
+  .prog { height:3px; background:var(--line); border-radius:2px; margin-top:8px; overflow:hidden; }
+  .prog i { display:block; height:100%; background:var(--accent); }
+
+  /* spiller */
+  .back { display:inline-block; color:var(--muted); margin-bottom:8px; padding:6px 0; }
+  .now h1 { margin:4px 0 2px; }
+  .chapter-now { color:var(--muted); min-height:1.5em; margin:0 0 20px; }
+  .scrub { width:100%; accent-color:var(--accent); height:28px; margin:0; }
+  .times { display:flex; justify-content:space-between; font-size:.82rem; color:var(--muted); font-variant-numeric:tabular-nums; margin-top:-2px; }
+  .controls { display:flex; align-items:center; justify-content:center; gap:18px; margin:14px 0 6px; }
+  .controls button { width:48px; height:48px; border-radius:50%; display:grid; place-items:center; color:var(--fg); }
+  .controls button:hover { background:var(--line); }
+  .controls .play { width:68px; height:68px; background:var(--accent); color:var(--accent-fg); }
+  .controls .play:hover { background:var(--accent); opacity:.9; }
+  .controls svg { width:26px; height:26px; fill:currentColor; }
+  .controls .play svg { width:32px; height:32px; }
+  .controls small { font-size:.7rem; font-weight:600; position:absolute; }
+  .extras { display:flex; justify-content:center; gap:8px; margin-bottom:24px; }
+  .chip { padding:6px 12px; border-radius:999px; border:1px solid var(--line); font-size:.85rem; color:var(--muted); }
+  .chip:hover { color:var(--fg); border-color:var(--muted); }
+  .chapters { list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+  .chapters li { display:flex; gap:12px; padding:13px 4px; border-bottom:1px solid var(--line); cursor:pointer; align-items:baseline; }
+  .chapters li:hover { background:color-mix(in srgb, var(--accent) 7%, transparent); }
+  .chapters .n { flex:none; width:1.8em; color:var(--muted); font-variant-numeric:tabular-nums; text-align:right; }
+  .chapters li.done { color:var(--muted); }
+  .chapters li.active { color:var(--accent); font-weight:600; }
 </style>
 </head>
 <body>
@@ -36,10 +70,9 @@
   <section id="login" class="hidden">
     <h1>Lydbøker</h1>
     <form id="loginForm">
-      <label for="pw">Passord</label>
-      <input id="pw" type="password" autocomplete="current-password" autofocus>
+      <input id="pw" type="password" placeholder="Passord" autocomplete="current-password" autofocus>
       <div class="err" id="err"></div>
-      <button type="submit">Logg inn</button>
+      <button class="btn" type="submit">Åpne</button>
     </form>
   </section>
   <section id="app" class="hidden"></section>
