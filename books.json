@@ -1,0 +1,15 @@
+{
+  "baseUrl": "https://DIN-UMBREL-ADRESSE/lyd/",
+  "books": [
+    {
+      "id": "eksempel-bok",
+      "title": "Eksempel på lydbok",
+      "author": "Forfatter",
+      "cover": "",
+      "files": [
+        { "title": "Kapittel 1", "src": "eksempel-bok/kapittel01.mp3" },
+        { "title": "Kapittel 2", "src": "eksempel-bok/kapittel02.mp3" }
+      ]
+    }
+  ]
+}
