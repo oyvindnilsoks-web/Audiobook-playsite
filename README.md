@@ -107,3 +107,11 @@ python3 tools/build_books.py --root ~/Dokumenter --upload
 
 ## Gratisgrenser (Cloudflare)
 Workers: 100 000 forespørsler/dag og 10 ms CPU per forespørsel. R2: 10 GB lagring, ingen utgående trafikkavgift. Statiske filer teller ikke mot Workers-grensen.
+
+## Bokforsider
+```bash
+python3 tools/fetch_covers.py --local ~/Dokumenter   # henter fra Open Library (bruker egne bilder i lydbokmappene først)
+python3 tools/build_books.py --root ~/Dokumenter      # legger forsidene inn i books.json
+wrangler deploy
+```
+Forsidene havner i `public/covers/<bok-id>.jpg`. Du kan legge egne bilder der selv.

@@ -34,6 +34,10 @@
   .book { display:flex; gap:14px; align-items:center; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:14px; }
   .book:hover { border-color:var(--accent); }
   .tile { flex:none; width:52px; height:52px; border-radius:10px; display:grid; place-items:center; font-weight:700; font-size:1.2rem; color:#fff; }
+  img.tile { object-fit:cover; background:var(--line); }
+  .cover { display:block; width:min(60%,240px); aspect-ratio:2/3; object-fit:cover; border-radius:10px; margin:4px auto 20px; box-shadow:0 8px 28px rgba(0,0,0,.25); }
+  .now { text-align:center; }
+  .now .chapter-now { margin-bottom:20px; }
   .book .t { font-weight:600; line-height:1.25; }
   .book .s { font-size:.88rem; color:var(--muted); }
   .book .txt { min-width:0; flex:1; }

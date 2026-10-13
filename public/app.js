@@ -87,7 +87,7 @@ function renderList() {
   $("app").innerHTML = `<h1>Lydbøker</h1><div class="books">` + books.map((b) => {
     const pct = percent(b);
     return `<a class="book" href="#/bok/${encodeURIComponent(b.id)}">
-      <div class="tile" style="background:hsl(${hue(b.id)} 45% 42%)">${esc(b.title.trim()[0] || "?")}</div>
+      ${b.cover ? `<img class="tile" src="${esc(b.cover)}" alt="" loading="lazy">` : `<div class="tile" style="background:hsl(${hue(b.id)} 45% 42%)">${esc(b.title.trim()[0] || "?")}</div>`}
       <div class="txt"><div class="t">${esc(b.title)}</div><div class="s">${esc(b.author)}${b.files.length > 1 ? " · " + b.files.length + " kapitler" : ""}</div>
       ${pct ? `<div class="prog"><i style="width:${pct}%"></i></div>` : ""}</div></a>`;
   }).join("") + `</div>`;
@@ -103,6 +103,7 @@ function renderBook(book) {
   $("app").innerHTML = `
     <a class="back" href="#/">← Alle bøker</a>
     <div class="now">
+      ${book.cover ? `<img class="cover" src="${esc(book.cover)}" alt="">` : ""}
       <h1>${esc(book.title)}</h1>
       <div class="muted">${esc(book.author)}</div>
       <p class="chapter-now" id="chNow"></p>

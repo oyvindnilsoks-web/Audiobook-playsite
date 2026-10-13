@@ -68,7 +68,11 @@ def main():
             ftitle = title if len(files) == 1 else clean_title(f.stem)
             entries.append({"title": ftitle, "src": key})
             uploads.append((f, key))
-        books.append({"id": slug, "title": title, "author": author, "files": entries})
+        book = {"id": slug, "title": title, "author": author}
+        if (Path(a.out).parent / "covers" / f"{slug}.jpg").exists():
+            book["cover"] = f"covers/{slug}.jpg"
+        book["files"] = entries
+        books.append(book)
 
     Path(a.out).write_text(json.dumps({"books": books}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     total = sum(f.stat().st_size for f, _ in uploads)
