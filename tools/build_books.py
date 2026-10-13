@@ -18,12 +18,6 @@ AUDIO = {".mp3": "audio/mpeg", ".m4b": "audio/mp4", ".m4a": "audio/mp4"}
 # En mappe = bok med kapittelfiler. En enkeltfil = bok med én fil.
 BOOKS = [
     ("hp1", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP1*.m4b"),
-    ("hp2", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP2*.m4b"),
-    ("hp3", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP3*.m4b"),
-    ("hp4", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP4*.m4b"),
-    ("hp5", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP5*.m4b"),
-    ("hp6", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP6*.m4b"),
-    ("hp7", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP7*.m4b"),
     ("hobbit", "The Hobbit", "J.R.R. Tolkien", "The Hobbit/"),
     ("hunger-games-1", "The Hunger Games", "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/Book 1*/"),
     ("hunger-games-2", "Catching Fire", "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/Book 2*/"),
