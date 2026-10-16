@@ -8,14 +8,15 @@ Bruk:
 Opplasting krever rclone og miljøvariablene R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY.
 Trygt å kjøre flere ganger: filer som allerede er lastet opp hoppes over.
 """
-import argparse, json, os, re, subprocess, sys
+import argparse, glob, json, os, re, subprocess, sys
 from pathlib import Path
 
 BUCKET = "lydbok"
-AUDIO = {".mp3": "audio/mpeg", ".m4b": "audio/mp4", ".m4a": "audio/mp4"}
+AUDIO = {".mp3": "audio/mpeg", ".m4b": "audio/mp4", ".m4a": "audio/mp4", ".ogg": "audio/ogg", ".opus": "audio/ogg"}
 
 # (slug, tittel, forfatter, mappe/fil relativt til --root)
 # En mappe = bok med kapittelfiler. En enkeltfil = bok med én fil.
+# Stien er relativ til --root, eller absolutt / med ~ (f.eks. "~/Nedlastinger/fil.ogg").
 BOOKS = [
     ("hp1", None, "J.K. Rowling", "Harry Potter Audiobooks 1-7/HP1*.m4b"),
     ("hobbit", "The Hobbit", "J.R.R. Tolkien", "The Hobbit/"),
@@ -23,6 +24,7 @@ BOOKS = [
     ("hunger-games-2", "Catching Fire", "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/Book 2*/"),
     ("hunger-games-3", "Mockingjay", "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/Book 3*/"),
     ("hunger-games-0", None, "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/The Ballad*.m4b"),
+    ("marg-og-bein-dukken", "Marg og Bein – Dukken", "", "~/Nedlastinger/Marg og Bein Dukken hele.ogg"),
 ]
 
 def natural(p):
@@ -38,7 +40,10 @@ def clean_title(stem):
 
 def find(root, pattern):
     is_dir = pattern.endswith("/")
-    matches = sorted(root.glob(pattern.rstrip("/")), key=natural)
+    full = os.path.expanduser(pattern.rstrip("/"))
+    if not os.path.isabs(full):
+        full = os.path.join(str(root), full)
+    matches = sorted((Path(m) for m in glob.glob(glob.escape(os.path.dirname(full)) + "/" + os.path.basename(full))), key=natural)
     return [m for m in matches if m.is_dir() == is_dir]
 
 def main():
