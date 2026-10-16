@@ -24,7 +24,7 @@ BOOKS = [
     ("hunger-games-2", "Catching Fire", "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/Book 2*/"),
     ("hunger-games-3", "Mockingjay", "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/Book 3*/"),
     ("hunger-games-0", None, "Suzanne Collins", "The Hunger Games Trilogy + Prequel (Audiobook)/The Ballad*.m4b"),
-    ("marg-og-bein-dukken", "Marg og Bein – Dukken", "", "~/Nedlastinger/Marg og Bein Dukken hele.ogg"),
+    ("marg-og-bein-dukken", "Marg og Bein – Dukken", "Ingunn Aamodt", "~/Nedlastinger/Marg og Bein Dukken hele.mp3"),
 ]
 
 def natural(p):
