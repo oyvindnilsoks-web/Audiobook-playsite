@@ -42,7 +42,7 @@ export default {
       headers.set("accept-ranges", "bytes");
       headers.set("cache-control", "private, max-age=3600");
       if (!headers.get("content-type") || headers.get("content-type") === "application/octet-stream")
-        headers.set("content-type", /\.(m4b|m4a)$/i.test(key) ? "audio/mp4" : /\.(ogg|opus)$/i.test(key) ? "audio/ogg" : "audio/mpeg");
+        headers.set("content-type", /\.(m4b|m4a)$/i.test(key) ? "audio/mp4" : /\.(ogg|opus)$/i.test(key) ? "audio/ogg" : /\.webp$/i.test(key) ? "image/webp" : /\.jpe?g$/i.test(key) ? "image/jpeg" : /\.png$/i.test(key) ? "image/png" : "audio/mpeg");
       if (obj.range && rangeHeader) {
         const { offset = 0, length = obj.size - offset } = obj.range;
         headers.set("content-range", `bytes ${offset}-${offset + length - 1}/${obj.size}`);

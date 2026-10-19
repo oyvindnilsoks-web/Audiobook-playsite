@@ -68,6 +68,9 @@ function teardown() {
 }
 function route() {
   teardown();
+  const rm = location.hash.match(/^#\/les\/(.+)$/);
+  const reading = rm && (catalog.readings || []).find((r) => r.id === decodeURIComponent(rm[1]));
+  if (reading) { renderReading(reading); window.scrollTo(0, 0); wantPlay = false; return; }
   const m = location.hash.match(/^#\/bok\/(.+)$/);
   const book = m && catalog.books.find((b) => b.id === decodeURIComponent(m[1]));
   book ? renderBook(book) : renderList();
@@ -92,7 +95,26 @@ function renderList() {
       ${b.cover ? `<img class="tile" src="${esc(b.cover)}" alt="" loading="lazy">` : `<div class="tile" style="background:hsl(${hue(b.id)} 45% 42%)">${esc(b.title.trim()[0] || "?")}</div>`}
       <div class="txt"><div class="t">${esc(b.title)}</div><div class="s">${esc(b.author)}${b.files.length > 1 ? " · " + b.files.length + " kapitler" : ""}</div>
       ${pct ? `<div class="prog"><i style="width:${pct}%"></i></div>` : ""}</div></a>`;
-  }).join("") + `</div>`;
+  }).join("") + `</div>` + readingsList();
+}
+
+function readingsList() {
+  const rs = catalog.readings || [];
+  if (!rs.length) return "";
+  return `<h2 class="sec">Les</h2><div class="books">` + rs.map((r) =>
+    `<a class="book" href="#/les/${encodeURIComponent(r.id)}"><div class="tile" style="background:hsl(${hue(r.id)} 35% 38%)">Aa</div>
+     <div class="txt"><div class="t">${esc(r.title)}</div><div class="s">${r.images.length} sider</div></div></a>`).join("") + `</div>`;
+}
+
+function renderReading(r) {
+  const tok = encodeURIComponent(store.get(AUTH_KEY));
+  const url = (src) => "/api/audio/" + src.split("/").map(encodeURIComponent).join("/") + "?t=" + tok;
+  $("app").innerHTML = `
+    <a class="back" href="#/">← Alle bøker</a>
+    <h1>${esc(r.heading || r.title)}</h1>
+    <div class="pages">` + r.images.map((im) =>
+      `<a href="${url(im.src)}" target="_blank" rel="noopener"><img src="${url(im.src)}" alt="${esc(im.alt)}" loading="lazy"></a>`).join("") +
+    `</div><p class="muted hint">Trykk på et bilde for å åpne det i full størrelse.</p>`;
 }
 
 /* ---------- spiller ---------- */

@@ -27,6 +27,16 @@ BOOKS = [
     ("marg-og-bein-dukken", "Marg og Bein – Dukken", "Ingunn Aamodt", "~/Nedlastinger/Marg og Bein Dukken hele.mp3"),
 ]
 
+# Leseutdrag (bilder). Stier relativt til repoet. Lastes opp til R2 sammen med lydfilene.
+READINGS = [
+    ("bfg", "Les utdrag fra BFG", "Les utdrag fra BFG:", [
+        ("readings/bfg/side-62-63.webp", "The BFG, side 62–63: The Witching Hour"),
+        ("readings/bfg/side-64-65.webp", "The BFG, side 64–65: Peeking Out"),
+    ]),
+]
+IMAGE_TYPES = {".webp": "image/webp", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
+REPO = Path(__file__).resolve().parent.parent
+
 def natural(p):
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", p.name)]
 
@@ -79,8 +89,22 @@ def main():
         book["files"] = entries
         books.append(book)
 
-    Path(a.out).write_text(json.dumps({"books": books}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    readings, image_uploads = [], []
+    for rid, rtitle, heading, imgs in READINGS:
+        entries = []
+        for rel, alt in imgs:
+            f = REPO / rel
+            if not f.exists():
+                print(f"ADVARSEL: fant ikke {rel}", file=sys.stderr)
+                continue
+            entries.append({"src": rel, "alt": alt})
+            image_uploads.append((f, rel))
+        if entries:
+            readings.append({"id": rid, "title": rtitle, "heading": heading, "images": entries})
+
+    Path(a.out).write_text(json.dumps({"books": books, "readings": readings}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     total = sum(f.stat().st_size for f, _ in uploads)
+    print(f"{len(readings)} leseutdrag, {len(image_uploads)} bilder")
     print(f"{len(books)} bøker, {len(uploads)} filer, {total/1e9:.2f} GB -> {a.out}")
     for b in books:
         print(f"  {b['id']:16} {b['title']}  ({len(b['files'])} filer)")
@@ -98,10 +122,12 @@ def main():
         RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=os.environ["R2_SECRET_ACCESS_KEY"],
         RCLONE_CONFIG_R2_ENDPOINT=f"https://{os.environ['R2_ACCOUNT_ID']}.r2.cloudflarestorage.com",
         RCLONE_CONFIG_R2_NO_CHECK_BUCKET="true")
+    ctype = lambda f: AUDIO.get(f.suffix.lower()) or IMAGE_TYPES[f.suffix.lower()]
+    uploads += image_uploads
     for n, (f, key) in enumerate(uploads, 1):
         print(f"[{n}/{len(uploads)}] {key}", flush=True)
         r = subprocess.run(["rclone", "copyto", str(f), f"R2:{BUCKET}/{key}", "--progress",
-                            "--s3-chunk-size", "64M", "--header-upload", f"Content-Type: {AUDIO[f.suffix.lower()]}"], env=env)
+                            "--s3-chunk-size", "64M", "--header-upload", f"Content-Type: {ctype(f)}"], env=env)
         if r.returncode:
             sys.exit(f"Opplasting feilet for {f}")
     print("Alt lastet opp. Kjør: wrangler deploy")

@@ -115,3 +115,9 @@ python3 tools/build_books.py --root ~/Dokumenter      # legger forsidene inn i b
 wrangler deploy
 ```
 Forsidene havner i `public/covers/<bok-id>.jpg`. Du kan legge egne bilder der selv.
+
+## Leseutdrag (bilder)
+Bilder som skal kunne leses på siden (f.eks. sider fra en lærebok) legges i `readings/<navn>/` og registreres i `READINGS` øverst i `tools/build_books.py`. De lastes opp til R2 (bak innloggingen) og vises under «Les» på forsiden. Opplasting av ett bilde uten rclone:
+```bash
+wrangler r2 object put "lydbok/readings/bfg/side-62-63.webp" --file readings/bfg/side-62-63.webp --content-type image/webp --remote
+```
